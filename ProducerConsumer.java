@@ -1,20 +1,24 @@
-package corejava.threads;
-
-import java.util.ArrayDeque;
+package test;
+import java.util.LinkedList;
 import java.util.Queue;
 
 public class ProducerConsumer {
 
+	
 	public static void main(String[] args) {
-		Queue<Integer> queue = new ArrayDeque<>();
-
-		Producer producer = new Producer(queue);
-		Consumer consumer = new Consumer(queue);
-
-		Thread producerThread = new Thread(producer);
-		Thread consumerThread = new Thread(consumer);
-		producerThread.start();
-		consumerThread.start();
+		
+		Queue<Integer> shareQueue= new LinkedList<>();
+		
+		Producer producer = new Producer(shareQueue);
+		Consumer consumer = new Consumer(shareQueue);
+		
+		Thread prodThread = new Thread(producer);
+		Thread consThread = new Thread(consumer);
+		
+		prodThread.start();
+		consThread.start();
+		
+		
 	}
-
+	
 }

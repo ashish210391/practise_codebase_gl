@@ -1,34 +1,32 @@
-package corejava.threads;
-
+package test;
 import java.util.Queue;
 
 public class Consumer implements Runnable {
 
-	private Queue<Integer> queue;
+	private Queue<Integer> sharedQueue;
 
-	public Consumer(Queue<Integer> queue) {
-		this.queue = queue;
+	public Consumer(Queue<Integer> sharedQueue) {
+		this.sharedQueue = sharedQueue;
 	}
 
 	@Override
 	public void run() {
 		while (true) {
-			synchronized (queue) {
-				if (!queue.isEmpty()) {
-					int poll = queue.poll();
-					System.out.println("fetching data from the queue " + poll);
-					queue.notify();
+			synchronized (sharedQueue) {
+				if (sharedQueue.isEmpty()) {
+					System.out.println("Waiting for producer to produce item...");
+					try {
+						sharedQueue.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
-				System.out.println("Waiting for the producer to produce");
-				try {
-					queue.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
+				int item = sharedQueue.poll();
+				System.out.println("Item consumed == " + item);
+				sharedQueue.notify();
 			}
-		}
 
+		}
 	}
 
 }

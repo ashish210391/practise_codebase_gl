@@ -1,37 +1,39 @@
-package corejava.threads;
-
+package test;
 import java.util.Queue;
 
 public class Producer implements Runnable {
 
-	private Queue<Integer> queue;
-	private int count = 0;
+	private Queue<Integer> sharedQueue;
+	private static final int MAX_SIZE = 1;
+	private int item = 0;
 
-	public Producer(Queue<Integer> queue) {
-		this.queue = queue;
+	public Producer(Queue<Integer> sharedQueue) {
+		this.sharedQueue = sharedQueue;
 	}
 
 	@Override
 	public void run() {
 		while (true) {
-			synchronized (queue) {
-				if (!queue.isEmpty()) {
+			synchronized (sharedQueue) {
+				if (sharedQueue.size() == MAX_SIZE) {
 					try {
-						queue.wait();
+						System.out.println("Waiting for consumer to consume items..");
+						sharedQueue.wait();
 					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
-				System.out.println("Adding to queue");
-				++count;
-				queue.add(count);
-				System.out.println("notifying to the consumer ");
+				sharedQueue.add(item);
+				System.out.println("Item produced == " + item);
+				++item;
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				queue.notify();
+				sharedQueue.notify();
 			}
+
 		}
 	}
 
