@@ -1,0 +1,49 @@
+teacher personal table
+
+teacherid
+firstname
+middlename
+lastname
+age
+phonenumber
+qualification
+email
+address
+
+
+teacher professional table
+teacher_id
+department_id
+date of joining
+salary
+subjects
+	
+
+teaching_department
+
+departmentid
+departmentname
+subjectid
+subjectname
+
+
+students personal table
+
+id
+firstname
+middlename
+lastname
+address
+phone number
+email
+
+students endrollment table
+studentid
+classx
+sec
+subjects enrolled 
+
+Students academic table
+studentid
+subjects
+marks

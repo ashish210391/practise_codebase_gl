@@ -1,0 +1,252 @@
+Microservices 
+
+Rest
+small well chosen deployable units
+cloud enabled
+
+Microservice1 A1 A2
+Microservice2 B1 B2 B3 B4
+
+When a microservice is cloud enabled we can have multiple instance of of microservice
+A microservice which is cloud enabled can have multiple instance up or down depending upon the needs
+
+Challenges of microservice
+
+Bounded context
+Configuraton management 
+Dynamic scale up and scale down
+Visibilty: what happening behind the scenes so that bug can be determined caused by a mircorservice
+Pack of cards
+
+
+group == com.in28min.microservice
+
+
+artifact == limits-service
+spring boot == 2.0.0 M3
+dependencies == web, devtools,actuator,config client
+
+
+application propreties
+spring.application.name=limits-service
+
+
+create a simple service
+
+Controller ==== LimitsConfiguartionController
+Bean ==== Limit Config
+public class LimitsConfiguartionController{
+
+@GetMapping("/limits")
+public LimitConfiguration retrievelimitsFromConfig(){
+return new LimitConfig();
+}
+
+public class LimitConfig
+{
+int max;
+int min;
+
+getmin
+setmin
+getmax
+setmax
+}
+
+localhost:8080/limit
+
+Application.prperties
+limit-service.minimum=1
+limit-service.maxximum=100
+
+@Component
+@ConfigurationProperries("limits-service")
+public class Configuration{
+
+int minmimum
+int maximimum
+}
+
+
+
+spring cloud config
+
+group === com.in28min.microservices
+artifact id === spring-cloud-config-server
+devtools, config server
+
+Application peroperties
+
+spring.application.name= spring-cloud-config-server
+server.port =8888
+
+linking the limit-service and spring-cloud-config with the git
+mkdir git-localconfig-repo
+cd git-localconfig-repo
+git init
+
+go to spring cloud server in the eclipse and link git with eclipse
+by going to build path and link
+
+inside git-localconfig-repo create limits-service.properties
+copy ennrties of app prop of limits-service
+commit 
+git add -A
+git commit -m "first commit"
+
+
+configure the git repo inside the app properties of the spring-cloud-sconfig-server
+
+spring.cloud.config.server.git.uri=file:///git-localconfig-repo
+@EnableConfigServer used to enable the spring cloud in the springcloudconfigserver class
+browser == http://localhost:8888/limits-service/default
+
+We can have dev and QA version of the limits service. We need to configure them in the springcloudserver
+The spring cloud server interacts with the git repository as well as with the services.
+
+So we have limits-services-QA.properties and limits-services-Dev.properties and the default will be the limits-services.properties file. The value of the 
+limits-services.properties is overridden by the limits-services-QA.properties or limits-services-Dev.properties. Thus if a value is not missing from any of the
+dev or qa files it is taken from the limits-service.properties file.
+
+
+To link the limit service with the spring cloud config we have ensure that the application.properties of the limits-service is renamed to 
+bootstrap.properties and in this we have to configure the spring.cloud.config.uri = http://localhost/8888(i.e uri of the cloud config).
+After this the limits service will pick the data from the limit-service.prop of the spring cloud config.
+
+So basically we should have application name and spring cloud config uri in the bootstrap.properties	
+
+
+Note: both spring cloud config server and the limits service server should be having tomcat server up for them.
+
+
+Add profile in the bootstrap.properties
+spring.profiles.active=dev
+commit the changes 
+
+
+
+currency-exchange-service
+web,devtools,actuator, config client
+
+spring.application.name = currency-exchange-service
+server.port=8000
+ public class CurrencyExchangeController 
+{
+private Environment;
+
+"/currency-exchange/from/{from}/to{to}
+ExchangeValue retrieveExchangeValue(){
+Integer.parseInt(env.getProperty("local.server.port));
+}
+}
+
+//bean
+public class ExchangeValue
+{
+private long id
+private String from
+private String to
+private BigDecimal conversionMultiple
+int port;
+
+}
+
+/currency-exchange/from/USD/to/INR
+
+add dependency for h2 database
+com.h2database
+
+insert into exchange_value(id,currency_from,currency_to,conversion_multiple,port)
+values(10001,'USD','INR',65,0);
+insert into exchange_value(id,currency_from,currency_to,conversion_multiple,port)
+values(10002,'EUR','INR',75,0);
+insert into exchange_value(id,currency_from,currency_to,conversion_multiple,port)
+values(10003,'AUD','INR',25,0);
+
+
+create a ExchangeValueRepostory
+
+currency-conversion-service
+com.in28minutes.microservices
+
+localhost:8100/currency-converter/from/USD/to/INR/quantity/1000
+localhost:8100/currency-converter-feign/from/USD/to/INR/quantity/1000
+
+
+
+http://localhost:8000/currency-exchange/from/USD/to/INR
+http://localhost:8001/currency-exchange/from/USD/to/INR
+
+spring-cloud-starter-feign
+@EnableFeignClients("package-path")
+
+@FeignClient(name="currency-exchange-service",url="localhost:8000")
+interface CurrencyExchangeServiceProxy
+
+CurrencyCalculationService--->Ribbon(naming server)---->multiple instance of this CurrencyExchangeService
+
+org.springframework.cloud
+dependency --- spring-cloud-starter-ribbon
+
+
+@GetMapping("/cuurency-exchange/from/{from}/to/{to}
+
+currency-exchange-service.ribbon.listOfServers="http://localhost:8000,http://localhost:8001"
+
+@FeignClient(name="currency-exchange-service")
+@RibbonClient(name ="currency-exchange-service")
+interface CurrencyExchangeServiceProxy
+
+
+
+
+We can configure the list of all the instances in the currency-conversion-service to which the currency-exchange-service will interact
+
+spring.application.name=netflix-eureka-naming-server
+server.port=8761
+eureka.client.register-with-eureka=false
+eureka.client.fetch.registry=false
+
+
+
+currency-exchange-service.ribbon.listOfServers="http://localhost:8001,http://localhost:8000"
+
+
+
+
+
+Naming server: All the instances of the microservices register itself with the naming server.So here all the currencyExchangeService will register itself
+with the naming server and the currencyCalculationService will check the naming server for all the instances of the currencyExchangeServcie and this is called 
+service discovery.
+
+
+Eureka is a naming server offered by netflix
+
+
+Api gateways:
+Features implemented at the level of Api gateways which are useful for microservices are->
+Authentication.authorization and security
+Rate limits
+Fault tolerance
+Service aggregation
+
+for running the service through ZUUL api gate way
+http://localhost:8765/{applicationname}/{URI}
+		||||
+http://localhost:8765/currency-exchange-service/currency-exchange/from/USD/to/INR
+
+
+http://localhost:8765/currency-conversion-service/currency-converter/from/USD/to/INR/quantity/1000
+
+<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency>
+
+ZuulApiGateway
+@Bean
+public AlwaysSampler defaultSampler(){
+return new AlwaysSampler()
+}
+
+added the beans in the currency exchange and currency conversion services in the spring app class

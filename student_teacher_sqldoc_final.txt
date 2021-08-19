@@ -1,0 +1,44 @@
+teachertable
+
+teacherid
+firstname
+middlename
+lastname
+age
+phone number
+email
+address
+dept
+subjects
+salary
+dateofjoining
+
+student table
+
+studentid
+firstname
+middlename
+lastname
+phone number
+age
+class
+sec
+email
+address
+
+class table
+
+class
+section
+subjects
+teachers
+commencementdate
+enddate
+
+marks
+student id 
+marks
+subjectid
+
+
+

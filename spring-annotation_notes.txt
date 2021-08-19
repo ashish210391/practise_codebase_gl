@@ -1,0 +1,18 @@
+Annotations used
+
+@Configuration
+@EnableWebMVC
+@EnableWebSecurity
+@Component
+@ComponentScan("")
+@PropertySource("")
+@Bean
+@Controller
+@RequestMapping
+@GetRequestMapping("")
+@PathVariable
+@ExceptionHandler
+@WebMvcConfigurer
+@ControllerAdvice
+@RequestBody
+@RepositoryRestResource(path = "members")	
